@@ -1,0 +1,5 @@
+.history
+.idea
+mobile/src/*/.gitkeep
+backend/src/main/java/com/inksoul/*/.gitkeep
+backend/target

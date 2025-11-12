@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # PostgreSQL数据库
+  postgres:
+    image: postgres:13-alpine
+    container_name: ink-soul-postgres
+    environment:
+      POSTGRES_DB: inksoul
+      POSTGRES_USER: inksoul
+      POSTGRES_PASSWORD: inksoul123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/src/main/resources/db/migration:/docker-entrypoint-initdb.d
+    networks:
+      - ink-soul-network
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: ink-soul-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ink-soul-network
+
+  # Elasticsearch搜索引擎
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: ink-soul-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - ink-soul-network
+
+  # 后端API服务
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ink-soul-api
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DATABASE_URL: jdbc:postgresql://postgres:5432/inksoul
+      DATABASE_USERNAME: inksoul
+      DATABASE_PASSWORD: inksoul123
+      REDIS_HOST: redis
+      ELASTICSEARCH_HOST: elasticsearch
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    networks:
+      - ink-soul-network
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:
+  redis_data:
+  elasticsearch_data:
+
+networks:
+  ink-soul-network:
+    driver: bridge

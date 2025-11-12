@@ -94,6 +94,12 @@
             <version>1.5</version>
         </dependency>
 
+        <!-- Flyway for database migration -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
         <!-- HTTP Client for AI Services -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -104,6 +110,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
         
